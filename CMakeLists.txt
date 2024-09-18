@@ -16,6 +16,7 @@ qt_add_executable(qt-minesweeper
     IntroWidget.cpp
 )
 
+target_include_directories(qt-minesweeper PRIVATE ./include)
 target_link_libraries(qt-minesweeper PRIVATE Qt6::Widgets)
 
 set_target_properties(qt-minesweeper PROPERTIES
