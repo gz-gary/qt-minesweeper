@@ -1,6 +1,7 @@
 #include "DifficultyDialog.hpp"
 #include <set>
 #include <QEvent>
+#include <iostream>
 
 DifficultyDialog::DifficultyDialog(int w, int h) :
     grid(w, h, 4, 8),
@@ -64,6 +65,8 @@ DifficultyDialog::DifficultyDialog(int w, int h) :
     lbl_cnt_mine.adjustSize();
     lbl_cnt_mine.installEventFilter(this);
     lbl_cnt_mine.show();
+
+    this->setFixedSize(w, h);
 }
 
 DifficultyDialog::~DifficultyDialog()
@@ -85,5 +88,19 @@ bool DifficultyDialog::eventFilter(QObject *target, QEvent *event)
     ) {
         accept();
     }
+
     return QDialog::eventFilter(target, event);
+}
+
+std::optional<DifficultySetting> DifficultyDialog::extractSetting() const
+{
+    DifficultySetting result;
+    bool flag;
+    result.map_width = lned_map_width.text().toInt(&flag);
+    if (!flag) return std::nullopt;
+    result.map_height = lned_map_height.text().toInt(&flag);
+    if (!flag) return std::nullopt;
+    result.cnt_mine = lned_cnt_mine.text().toInt(&flag);
+    if (!flag) return std::nullopt;
+    return result;
 }

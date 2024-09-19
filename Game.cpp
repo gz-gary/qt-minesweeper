@@ -29,6 +29,14 @@ bool Game::eventFilter(QObject * target, QEvent * event) {
         int value = difficulty_dialog.exec();
         std::cout << "Dialog returns " << value << std::endl;
         if (value == QDialog::Accepted) {
+            std::optional<DifficultySetting> setting = difficulty_dialog.extractSetting();
+            if (setting.has_value()) {
+                std::cout << "Map Width: " << setting->map_width << std::endl;
+                std::cout << "Map Height: " << setting->map_height << std::endl;
+                std::cout << "Count of Mines: " << setting->cnt_mine << std::endl;
+            } else {
+                std::cout << "Format wrong!" << std::endl;
+            }
             /*
             intro_widget.hide();
             intro_widget.show();

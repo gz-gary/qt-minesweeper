@@ -1,8 +1,16 @@
+#pragma once
 #include "Grid.hpp"
 #include <QDialog>
 #include <QPushButton>
 #include <QLineEdit>
 #include <QLabel>
+#include <optional>
+
+struct DifficultySetting {
+    int map_width;
+    int map_height;
+    int cnt_mine;
+};
 
 class DifficultyDialog : public QDialog {
 public:
@@ -21,4 +29,7 @@ public:
     DifficultyDialog(int w, int h);
     ~DifficultyDialog();
     bool eventFilter(QObject *target, QEvent *event);
+
+    // std::optional<DifficultySetting> selected_difficulty;
+    std::optional<DifficultySetting> extractSetting() const;
 };
