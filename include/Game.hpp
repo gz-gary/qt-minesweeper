@@ -1,12 +1,13 @@
 #pragma once
 #include "IntroWidget.hpp"
+#include "DifficultyDialog.hpp"
 #include <QWidget>
 #include <QDialog>
 
 class Game : public QObject {
 public:
     IntroWidget intro_widget;
-    QDialog dialog_widget;
+    DifficultyDialog difficulty_dialog;
 
     Game();
     ~Game();

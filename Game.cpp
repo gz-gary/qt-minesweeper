@@ -5,12 +5,10 @@
 
 Game::Game() :
     intro_widget(500, 500),
-    dialog_widget()
+    difficulty_dialog(400, 360)
 {
     intro_widget.btn_start_game.installEventFilter(this);
     intro_widget.show();
-
-    dialog_widget.resize(300, 300);
 }
 
 Game::~Game()
@@ -19,9 +17,12 @@ Game::~Game()
 
 bool Game::eventFilter(QObject * target, QEvent * event) {
     
-    if (target == &intro_widget.btn_start_game && event->type() == QEvent::MouseButtonPress) {
-        std::cout << "Start Game Clicked Detected" << std::endl;
-        dialog_widget.exec();
+    if (
+        event->type() == QEvent::MouseButtonRelease
+        && target == &intro_widget.btn_start_game
+    ) {
+        int value = difficulty_dialog.exec();
+        std::cout << "Dialog returns " << value << std::endl;
         return true;
     }
     return QObject::eventFilter(target, event);

@@ -1,4 +1,5 @@
 #pragma once
+#include "Grid.hpp"
 #include <functional>
 #include <QWidget>
 #include <QPushButton>
@@ -8,10 +9,7 @@ public:
     QPushButton btn_start_game,
                 btn_settings,
                 btn_exit;
-    const std::function<int(int)> fw, fh;
-
-    const static int GRID_CNT_W = 5,
-                     GRID_CNT_H = 5;
+    Grid grid;
     
     IntroWidget(int w, int h);
     ~IntroWidget();
