@@ -8,6 +8,7 @@ Game::Game() :
     difficulty_dialog(400, 360)
 {
     intro_widget.btn_start_game.installEventFilter(this);
+    intro_widget.btn_exit.installEventFilter(this);
     intro_widget.show();
 }
 
@@ -23,7 +24,14 @@ bool Game::eventFilter(QObject * target, QEvent * event) {
     ) {
         int value = difficulty_dialog.exec();
         std::cout << "Dialog returns " << value << std::endl;
-        return true;
+    }
+
+    if (
+        event->type() == QEvent::MouseButtonRelease
+        && target == &intro_widget.btn_exit
+    ) {
+        std::cout << "Exit game" << std::endl;
+        exit(0);
     }
     return QObject::eventFilter(target, event);
 }
