@@ -4,7 +4,7 @@
 #include <QPushButton>
 #include <QLineEdit>
 #include <QLabel>
-#include <optional>
+#include <QValidator>
 
 struct DifficultySetting {
     int map_width;
@@ -13,7 +13,17 @@ struct DifficultySetting {
 };
 
 class DifficultyDialog : public QDialog {
+private:
+
+    enum Difficulty{
+        Easy,
+        Moderate,
+        Hard,
+        Custom
+    } difficulty_selected;
+
 public:
+
     Grid grid;
     QPushButton btn_easy_mode,
                 btn_moderate_mode,
@@ -25,11 +35,13 @@ public:
     QLabel      lbl_map_width,
                 lbl_map_height,
                 lbl_cnt_mine;
+    QIntValidator  vld_map_size,
+                   vld_cnt_mine;
 
     DifficultyDialog(int w, int h);
     ~DifficultyDialog();
     bool eventFilter(QObject *target, QEvent *event);
 
     // std::optional<DifficultySetting> selected_difficulty;
-    std::optional<DifficultySetting> extractSetting() const;
+    DifficultySetting extractSetting() const;
 };
