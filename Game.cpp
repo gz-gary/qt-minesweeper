@@ -8,12 +8,10 @@ Game::Game() :
     intro_widget(500, 500),
     difficulty_dialog(400, 360)
 {
-    intro_widget.setFixedSize(intro_widget.size());
-    difficulty_dialog.setFixedSize(difficulty_dialog.size());
-    intro_widget.show();
-
     intro_widget.btn_start_game.installEventFilter(this);
     intro_widget.btn_exit.installEventFilter(this);
+
+    intro_widget.show();
 }
 
 Game::~Game()
