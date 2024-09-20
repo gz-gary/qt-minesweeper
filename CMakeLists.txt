@@ -19,6 +19,7 @@ qt_add_executable(qt-minesweeper
     Game.cpp
     IntroWidget.cpp
     DifficultyDialog.cpp
+    PlayDialog.cpp
 )
 
 target_include_directories(qt-minesweeper PRIVATE ./include)
