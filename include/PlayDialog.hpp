@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QPushButton>
 #include <QLabel>
+#include <QTimer>
 #include <vector>
 
 const int DirectionOffset[8][2] = {
@@ -17,6 +18,19 @@ const int DirectionOffset[8][2] = {
     {-1, -1},
 };
 
+const QString DigitString[10] = {
+    "0",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+};
+
 class PlayDialog : public QDialog {
 private:
     struct GridInfo {
@@ -24,12 +38,18 @@ private:
         bool is_clear;
         int cnt_mines_around;
     };
+    int safe_block_remaining;
+    QTimer timer;
     bool outOfBound(int x, int y) const;
     void generateMines(int cl_x, int cl_y);
+    void showUp(int x, int y);
+    void clearAreaAround(int cl_x, int cl_y);
 
 public:
 
     Grid grid;
+    QLabel lbl_time;
+    int time_used;
     DifficultySetting setting;
     std::vector<std::vector<QPushButton*>> grid_btn_mine;
     std::vector<std::vector<QLabel*>> grid_lbl;

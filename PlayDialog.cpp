@@ -1,6 +1,8 @@
 #include "PlayDialog.hpp"
 #include <QEvent>
 #include <iostream>
+#include <queue>
+#include <QMessageBox>
 
 bool PlayDialog::outOfBound(int x, int y) const
 {
@@ -11,7 +13,15 @@ void PlayDialog::applySetting(const DifficultySetting &setting)
 {
     this->setFixedSize(setting.map_width * 40, 150 + setting.map_height * 40);
     this->setting = setting;
+    this->time_used = 0;
+    this->safe_block_remaining = setting.map_width * setting.map_height - setting.cnt_mine;
+
     grid = Grid(setting.map_width * 40, setting.map_height * 40, setting.map_width, setting.map_height);
+    lbl_time.move(20, 80);
+    lbl_time.setText("0.00");
+    lbl_time.adjustSize();
+    timer.stop();
+
     for (auto _ : grid_btn_mine) {
         for (auto btn : _) {
             delete btn;
@@ -44,6 +54,8 @@ void PlayDialog::applySetting(const DifficultySetting &setting)
             grid_btn_mine[i][j] = btn;
 
             QLabel *lbl = new QLabel(this);
+            lbl->move(i * 40, 150 + j * 40);
+            grid_lbl[i][j] = lbl;
 
             grid_info[i][j].is_clear = false;
             grid_info[i][j].is_mine = false;
@@ -95,9 +107,51 @@ void PlayDialog::generateMines(int cl_x, int cl_y)
     }
 }
 
-PlayDialog::PlayDialog(int w, int h) : grid(w, h, 1, 1)
+void PlayDialog::showUp(int x, int y)
+{
+    assert(!grid_info[x][y].is_mine);
+    grid_info[x][y].is_clear = true;
+    grid_btn_mine[x][y]->hide();
+    if (grid_info[x][y].cnt_mines_around > 0) {
+        grid_lbl[x][y]->setText(DigitString[grid_info[x][y].cnt_mines_around]);
+        grid_lbl[x][y]->adjustSize();
+        grid_lbl[x][y]->show();
+    }
+}
+
+void PlayDialog::clearAreaAround(int cl_x, int cl_y)
+{
+    showUp(cl_x, cl_y);
+    std::queue<std::pair<int, int>> que;
+    que.push({cl_x, cl_y});
+    while (!que.empty()) {
+        auto pair = que.front();
+        que.pop();
+        int x = pair.first, y = pair.second;
+        --this->safe_block_remaining;
+        if (grid_info[x][y].cnt_mines_around > 0) continue;
+        for (int d = 0; d < 8; ++d) {
+            int dx = x + DirectionOffset[d][0],
+                dy = y + DirectionOffset[d][1];
+            if (!outOfBound(dx, dy) && !grid_info[dx][dy].is_mine && !grid_info[dx][dy].is_clear) {
+                que.push({dx, dy});
+                showUp(dx, dy);
+            }
+        }
+    }
+}
+
+PlayDialog::PlayDialog(int w, int h) : timer(this), grid(w, h, 1, 1), lbl_time(this)
 {
     this->setFixedSize(w, h);
+    lbl_time.show();
+    connect(&timer, &QTimer::timeout, this, [this](){
+        ++time_used;
+        char buf[10];
+        snprintf(buf, 10, "%d.%d%d", time_used / 100, (time_used / 10) % 10, time_used % 10);
+        lbl_time.setText(buf);
+        lbl_time.adjustSize();
+    });
 }
 
 PlayDialog::~PlayDialog()
@@ -108,6 +162,13 @@ PlayDialog::~PlayDialog()
         }
     }
     grid_btn_mine.clear();
+
+    for (auto _ : grid_lbl) {
+        for (auto lbl : _) {
+            delete lbl;
+        }
+    }
+    grid_lbl.clear();
 }
 
 bool PlayDialog::eventFilter(QObject *target, QEvent *event)
@@ -128,7 +189,20 @@ bool PlayDialog::eventFilter(QObject *target, QEvent *event)
         if (click_btn) {
             if (is_first_click) {
                 generateMines(cl_x, cl_y);
+                assert(!grid_info[cl_x][cl_y].is_mine);
+                timer.start(10);
                 is_first_click = false;
+            }
+            if (!grid_info[cl_x][cl_y].is_mine) {
+                clearAreaAround(cl_x, cl_y);
+                if (safe_block_remaining == 0) {
+                    timer.stop();
+                    QMessageBox::information(this, "You win", "You have found all the mines!");
+                    accept();
+                }
+            } else {
+                QMessageBox::information(this, "You lose", "You hit a mine!");
+                accept();
             }
         }
     }
