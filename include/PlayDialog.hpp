@@ -36,6 +36,7 @@ private:
     struct GridInfo {
         bool is_mine;
         bool is_clear;
+        bool is_marked;
         int cnt_mines_around;
     };
 
@@ -55,6 +56,8 @@ private:
     void generateMines(int cl_x, int cl_y);
     void showUp(int x, int y);
     void clearAreaAround(int cl_x, int cl_y);
+    void leftClickOn(int cl_x, int cl_y);
+    void rightClickOn(int cl_x, int cl_y);
 
 public:
 

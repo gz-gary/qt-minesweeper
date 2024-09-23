@@ -4,6 +4,7 @@
 #include <sstream>
 #include <queue>
 #include <QMessageBox>
+#include <QMouseEvent>
 
 bool PlayDialog::outOfBound(int x, int y) const
 {
@@ -60,6 +61,7 @@ void PlayDialog::applySetting(const DifficultySetting &setting)
 
             grid_info[i][j].is_clear = false;
             grid_info[i][j].is_mine = false;
+            grid_info[i][j].is_marked = false;
             grid_info[i][j].cnt_mines_around = 0;
         }
     }
@@ -142,6 +144,47 @@ void PlayDialog::clearAreaAround(int cl_x, int cl_y)
     }
 }
 
+void PlayDialog::leftClickOn(int cl_x, int cl_y)
+{
+    if (grid_info[cl_x][cl_y].is_marked) return;
+    if (is_first_click) {
+        generateMines(cl_x, cl_y);
+        assert(!grid_info[cl_x][cl_y].is_mine);
+        timer.start(10);
+        is_first_click = false;
+    }
+    if (!grid_info[cl_x][cl_y].is_mine) {
+        clearAreaAround(cl_x, cl_y);
+        if (safe_block_remaining == 0) {
+            timer.stop();
+            std::ostringstream buf;
+            buf << "You have found all the mines! Time used: "
+                << time_used / 100
+                << "."
+                << (time_used / 10) % 10
+                << time_used % 10
+                << "s.";
+            QMessageBox::information(this, "You win", buf.str().c_str());
+            accept();
+        }
+    } else {
+        QMessageBox::information(this, "You lose", "You hit a mine!");
+        accept();
+    }
+}
+
+void PlayDialog::rightClickOn(int cl_x, int cl_y)
+{
+    QPushButton *btn = grid_btn_mine[cl_x][cl_y];
+    if (grid_info[cl_x][cl_y].is_marked) {
+        btn->setText("");
+        grid_info[cl_x][cl_y].is_marked = false;
+    } else {
+        btn->setText("x");
+        grid_info[cl_x][cl_y].is_marked = true;
+    }
+}
+
 PlayDialog::PlayDialog(int w, int h) : timer(this), grid(w, h, 1, 1), lbl_time(this)
 {
     this->setFixedSize(w, h);
@@ -188,22 +231,11 @@ bool PlayDialog::eventFilter(QObject *target, QEvent *event)
             if (click_btn) break;
         }
         if (click_btn) {
-            if (is_first_click) {
-                generateMines(cl_x, cl_y);
-                assert(!grid_info[cl_x][cl_y].is_mine);
-                timer.start(10);
-                is_first_click = false;
-            }
-            if (!grid_info[cl_x][cl_y].is_mine) {
-                clearAreaAround(cl_x, cl_y);
-                if (safe_block_remaining == 0) {
-                    timer.stop();
-                    QMessageBox::information(this, "You win", "You have found all the mines!");
-                    accept();
-                }
-            } else {
-                QMessageBox::information(this, "You lose", "You hit a mine!");
-                accept();
+            QMouseEvent *m_event = static_cast<QMouseEvent *>(event);
+            if (m_event->button() == Qt::LeftButton) {
+                leftClickOn(cl_x, cl_y);
+            } else if (m_event->button() == Qt::RightButton) {
+                rightClickOn(cl_x, cl_y);
             }
         }
     }
