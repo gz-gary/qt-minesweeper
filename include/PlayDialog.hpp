@@ -38,23 +38,25 @@ private:
         bool is_clear;
         int cnt_mines_around;
     };
+
     int safe_block_remaining;
     QTimer timer;
+    Grid grid;
+    QLabel lbl_time;
+    int time_used;
+    DifficultySetting setting;
+    bool is_first_click;
+
+    std::vector<std::vector<QPushButton*>> grid_btn_mine;
+    std::vector<std::vector<QLabel*>> grid_lbl;
+    std::vector<std::vector<GridInfo>> grid_info;
+
     bool outOfBound(int x, int y) const;
     void generateMines(int cl_x, int cl_y);
     void showUp(int x, int y);
     void clearAreaAround(int cl_x, int cl_y);
 
 public:
-
-    Grid grid;
-    QLabel lbl_time;
-    int time_used;
-    DifficultySetting setting;
-    std::vector<std::vector<QPushButton*>> grid_btn_mine;
-    std::vector<std::vector<QLabel*>> grid_lbl;
-    std::vector<std::vector<GridInfo>> grid_info;
-    bool is_first_click;
 
     void applySetting(const DifficultySetting& setting);
 

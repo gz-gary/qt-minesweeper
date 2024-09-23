@@ -1,6 +1,7 @@
 #include "PlayDialog.hpp"
 #include <QEvent>
 #include <iostream>
+#include <sstream>
 #include <queue>
 #include <QMessageBox>
 
@@ -147,9 +148,9 @@ PlayDialog::PlayDialog(int w, int h) : timer(this), grid(w, h, 1, 1), lbl_time(t
     lbl_time.show();
     connect(&timer, &QTimer::timeout, this, [this](){
         ++time_used;
-        char buf[10];
-        snprintf(buf, 10, "%d.%d%d", time_used / 100, (time_used / 10) % 10, time_used % 10);
-        lbl_time.setText(buf);
+        std::ostringstream buf{};
+        buf << time_used / 100 << "." << (time_used / 10) % 10 << time_used % 10;
+        lbl_time.setText(buf.str().c_str());
         lbl_time.adjustSize();
     });
 }
